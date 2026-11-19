@@ -1,0 +1,58 @@
+name: Build Debug APK (no-VPN cloner)
+
+# Fallback when the local Gradle build is blocked: the VM intercepts
+# localhost TCP, so the Gradle daemon cannot talk to its client
+# ("Could not receive a message from the daemon"). Building here
+# in GitHub Actions avoids the local daemon entirely.
+# Trigger manually: Actions > Build Debug APK > Run workflow.
+# No keystore secret needed — debug builds use the debug key.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-debug:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      # NDK 29 is pinned by Bcore/build.gradle; the runner image does not ship it.
+      - name: Install SDK packages
+        run: |
+          sdkmanager --install \
+            "platforms;android-35" \
+            "build-tools;35.0.0" \
+            "ndk;29.0.13846066"
+
+      # gradle.properties in this workspace carries the VM's egress-proxy
+      # settings (hatch-egress-proxy + credentials). That host does not
+      # exist on a GitHub runner, so dependency downloads would fail
+      # there. Strip those lines before building; they are VM-only.
+      - name: Remove VM-only proxy settings
+        run: sed -i '/systemProp\..*\.proxy/d' gradle.properties
+
+      - name: Build debug APKs
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Upload debug APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: MaxCloner-debug
+          path: app/build/outputs/apk/debug/*.apk
+          retention-days: 14
