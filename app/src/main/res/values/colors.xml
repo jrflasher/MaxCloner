@@ -58,4 +58,9 @@
     <color name="secondary_text">@color/zenith_on_surface_variant</color>
     <color name="white">#FFFFFFFF</color>
 
+    <!-- Clone App (referensi com.pengyou.cloneapp): tema terang -->
+    <color name="clone_blue">#1E88E5</color>
+    <color name="clone_light_bg">#F8F9FA</color>
+    <color name="clone_text_dark">#212121</color>
+    <color name="clone_text_gray">#757575</color>
 </resources>
