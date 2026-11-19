@@ -11,12 +11,15 @@ import top.niunaijun.blackboxa.databinding.ItemGmsBinding
 
 class GmsAdapter : RVHolderFactory() {
 
+    /** Dipanggil saat switch MicroG satu ruang diubah. (bean, mau diaktifkan?) */
+    var onMicroGToggle: ((GmsBean, Boolean) -> Unit)? = null
+
     override fun createViewHolder(parent: ViewGroup?, viewType: Int, item: Any): RVHolder<out Any> {
         return GmsVH(inflate(R.layout.item_gms,parent))
     }
 
 
-    class GmsVH(itemView:View):RVHolder<GmsBean>(itemView){
+    inner class GmsVH(itemView:View):RVHolder<GmsBean>(itemView){
 
         private val binding = ItemGmsBinding.bind(itemView)
         override fun setContent(item: GmsBean, isSelected: Boolean, payload: Any?) {
@@ -25,6 +28,12 @@ class GmsAdapter : RVHolderFactory() {
             binding.checkbox.setOnCheckedChangeListener  { buttonView, _ ->
                 if(buttonView.isPressed){
                     binding.root.performClick()
+                }
+            }
+            binding.microgCheckbox.isChecked = item.isInstalledMicroG
+            binding.microgCheckbox.setOnCheckedChangeListener { buttonView, isChecked ->
+                if (buttonView.isPressed) {
+                    onMicroGToggle?.invoke(item, isChecked)
                 }
             }
         }
