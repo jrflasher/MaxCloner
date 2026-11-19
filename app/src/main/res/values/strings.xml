@@ -82,4 +82,9 @@
     <string name="disable_gms">Disable Service</string>
     <string name="disable_gms_hint">Clear the current Google service environment? Google service data will be cleared.</string>
     <string name="no_gms">Currently, there is no Google service environment on mobile phones.</string>
+    <string name="menu_search">Cari clone</string>
+    <string name="search_clone_hint">Ketik nama clone…</string>
+    <string name="menu_delete_all">Hapus semua</string>
+    <string name="delete_all_clones">Hapus semua clone</string>
+    <string name="delete_all_clones_hint">Hapus semua clone dari semua ruang? Tindakan ini tidak bisa dibatalkan.</string>
 </resources>
