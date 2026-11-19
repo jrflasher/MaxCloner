@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  Transparent so the animated background runs behind the title, per the
-  glassmorphism brief. Title uses Space Grotesk, subtitle (the clone space
-  name) uses the mono label treatment.
+  Bar atas terang seperti Clone App (com.pengyou.cloneapp): latar putih,
+  judul gelap polos di kiri, ikon outline abu-abu di kanan. Tanpa logo,
+  tanpa subtitle.
 -->
 <com.google.android.material.appbar.MaterialToolbar xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:theme="@style/ToolBarColorStyle"
-        app:logo="@drawable/rais_logo"
-        app:subtitleTextAppearance="@style/Zenith.LabelMono.Cyan"
-        app:subtitleTextColor="@color/zenith_cyan"
+        android:background="@android:color/white"
+        android:theme="@style/CloneApp.Toolbar"
         app:title="@string/app_name"
         app:titleTextAppearance="@style/Zenith.Toolbar.Title"
-        app:titleTextColor="@color/zenith_on_surface">
+        app:titleTextColor="@color/clone_text_dark">
 
 </com.google.android.material.appbar.MaterialToolbar>
