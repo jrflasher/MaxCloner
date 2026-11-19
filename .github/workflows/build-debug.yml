@@ -27,13 +27,14 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      # NDK 29 is pinned by Bcore/build.gradle; the runner image does not ship it.
+      # ubuntu-latest already ships an Android SDK (ANDROID_HOME); the
+      # setup-android action is flaky here, so use the preinstalled one
+      # and install only the missing packages with its sdkmanager.
       - name: Install SDK packages
         run: |
-          sdkmanager --install \
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls "$ANDROID_HOME/cmdline-tools"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install \
             "platforms;android-35" \
             "build-tools;35.0.0" \
             "ndk;29.0.13846066"
