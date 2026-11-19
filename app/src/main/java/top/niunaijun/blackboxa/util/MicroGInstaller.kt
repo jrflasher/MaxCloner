@@ -49,6 +49,49 @@ object MicroGInstaller {
     }
 
     /**
+     * Aktifkan MicroG untuk satu ruang (satu user BlackBox) saja.
+     * File MicroG diunduh sekali saja dan disimpan di cache — sesudah itu
+     * aktivasi per ruang tidak perlu download lagi. Dipanggil dari
+     * background thread; callback selalu di main thread.
+     */
+    fun installToUser(userId: Int, onResult: (Boolean) -> Unit) {
+        Thread {
+            val ok = try {
+                installToUserSync(userId)
+            } catch (e: Exception) {
+                false
+            }
+            mainHandler.post { onResult(ok) }
+        }.start()
+    }
+
+    fun installToUserSync(userId: Int): Boolean {
+        val apkFile = microGApkFile()
+        if (!apkFile.exists() || apkFile.length() < 10_000_000) {
+            downloadApk(apkFile)
+        }
+        if (isInstalled(userId)) return true
+        return BlackBoxCore.get().installPackageAsUser(apkFile, userId).success
+    }
+
+    /** Nonaktifkan MicroG untuk satu ruang. */
+    fun uninstallFromUser(userId: Int, onResult: (Boolean) -> Unit) {
+        Thread {
+            val ok = try {
+                BlackBoxCore.get().uninstallPackageAsUser(GMS_PKG, userId)
+                !isInstalled(userId)
+            } catch (e: Exception) {
+                false
+            }
+            mainHandler.post { onResult(ok) }
+        }.start()
+    }
+
+    private fun microGApkFile(): File {
+        return File(BlackBoxCore.getContext().cacheDir, "microg-gmscore.apk")
+    }
+
+    /**
      * Download MicroG (sekali saja, file disimpan di cache) lalu pasang ke
      * semua ruang clone. Callback selalu dipanggil di main thread.
      * Result: (berhasil, pesan untuk ditampilkan ke pengguna).
