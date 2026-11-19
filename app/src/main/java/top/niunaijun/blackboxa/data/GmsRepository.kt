@@ -6,6 +6,7 @@ import top.niunaijun.blackboxa.R
 import top.niunaijun.blackboxa.app.AppManager
 import top.niunaijun.blackboxa.bean.GmsBean
 import top.niunaijun.blackboxa.bean.GmsInstallBean
+import top.niunaijun.blackboxa.util.MicroGInstaller
 import top.niunaijun.blackboxa.util.getString
 
 
@@ -20,7 +21,7 @@ class GmsRepository {
             val userName =
                 AppManager.mRemarkSharedPreferences.getString("Remark$userId", "User $userId") ?: ""
             val isInstalled = BlackBoxCore.get().isInstallGms(userId)
-            val bean = GmsBean(userId, userName, isInstalled)
+            val bean = GmsBean(userId, userName, isInstalled, MicroGInstaller.isInstalled(userId))
             userList.add(bean)
         }
 
@@ -61,5 +62,35 @@ class GmsRepository {
         val bean = GmsInstallBean(userID,isSuccess,result)
 
         mUpdateInstalledLiveData.postValue(bean)
+    }
+
+    /** Aktifkan MicroG untuk satu ruang (tanpa install APK manual). */
+    fun installMicroG(
+        userID: Int,
+        mUpdateInstalledLiveData: MutableLiveData<GmsInstallBean>
+    ) {
+        MicroGInstaller.installToUser(userID) { ok ->
+            val result = if (ok) {
+                getString(R.string.microg_success)
+            } else {
+                getString(R.string.microg_fail)
+            }
+            mUpdateInstalledLiveData.postValue(GmsInstallBean(userID, ok, result))
+        }
+    }
+
+    /** Nonaktifkan MicroG untuk satu ruang. */
+    fun uninstallMicroG(
+        userID: Int,
+        mUpdateInstalledLiveData: MutableLiveData<GmsInstallBean>
+    ) {
+        MicroGInstaller.uninstallFromUser(userID) { ok ->
+            val result = if (ok) {
+                getString(R.string.uninstall_success)
+            } else {
+                getString(R.string.uninstall_fail)
+            }
+            mUpdateInstalledLiveData.postValue(GmsInstallBean(userID, ok, result))
+        }
     }
 }
