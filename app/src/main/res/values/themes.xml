@@ -43,7 +43,9 @@
         <item name="materialAlertDialogTheme">@style/Zenith.AlertDialog</item>
     </style>
 
-    <style name="CloneApp.Toolbar" parent="ThemeOverlay.Material3.Light.ActionBar">
+    <style name="CloneApp.Toolbar" parent="ThemeOverlay.Material3.Dark.ActionBar">
+        <!-- Parent Dark dipakai karena varian Light tidak ada di versi
+             Material library proyek ini; warna ikon/teks di-override ke gelap. -->
         <item name="actionMenuTextColor">@color/clone_text_dark</item>
         <item name="colorControlNormal">@color/clone_text_gray</item>
     </style>
