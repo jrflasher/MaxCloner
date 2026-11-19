@@ -43,6 +43,47 @@ class AppsFragment : Fragment() {
 
     private lateinit var mAdapter: RVAdapter<AppInfo>
 
+    private var fullList: List<AppInfo> = emptyList()
+
+    private var currentQuery: String = ""
+
+    /** Cari clone berdasarkan nama (dari ikon kaca pembesar di bar atas). */
+    fun filter(query: String) {
+        currentQuery = query.trim()
+        applyFilter()
+    }
+
+    private fun applyFilter() {
+        if (!this::mAdapter.isInitialized) return
+        val shown = if (currentQuery.isEmpty()) {
+            fullList
+        } else {
+            fullList.filter { it.name.contains(currentQuery, ignoreCase = true) }
+        }
+        mAdapter.setItems(shown)
+        if (fullList.isEmpty()) {
+            viewBinding.stateView.showEmpty()
+        } else {
+            viewBinding.stateView.showContent()
+        }
+    }
+
+    /** Hapus semua clone di halaman ini (dari ikon tempat sampah di bar atas). */
+    fun deleteAllClones() {
+        val items = fullList.toList()
+        if (items.isEmpty()) return
+        showLoading()
+        for (info in items) {
+            try {
+                viewModel.unInstall(info.packageName, info.userId)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error uninstalling ${info.packageName}: ${e.message}")
+            }
+        }
+        hideLoading()
+        viewModel.getInstalledApps(userID)
+    }
+
     private val viewBinding: FragmentAppsBinding by inflate()
 
     private var popupMenu: PopupMenu? = null
@@ -390,12 +431,8 @@ class AppsFragment : Fragment() {
             viewModel.appsLiveData.observe(viewLifecycleOwner) {
                 try {
                     if (it != null) {
-                        mAdapter.setItems(it)
-                        if (it.isEmpty()) {
-                            viewBinding.stateView.showEmpty()
-                        } else {
-                            viewBinding.stateView.showContent()
-                        }
+                        fullList = it
+                        applyFilter()
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error observing apps data: ${e.message}")
