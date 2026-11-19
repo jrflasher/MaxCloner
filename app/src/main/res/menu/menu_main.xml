@@ -1,7 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Ikon bar atas seperti Clone App: cari, hapus, profil. Sisanya di menu titik tiga. -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item
+            android:id="@+id/main_search"
+            android:icon="@drawable/ic_search"
+            android:title="@string/menu_search"
+            app:showAsAction="always" />
+
+    <item
+            android:id="@+id/main_delete_all"
+            android:icon="@drawable/ic_delete"
+            android:title="@string/menu_delete_all"
+            app:showAsAction="always" />
+
+    <item
+            android:id="@+id/main_profile"
+            android:icon="@drawable/ic_person"
+            android:title="@string/setting"
+            app:showAsAction="always" />
 
     <item
             android:id="@+id/main_setting"
