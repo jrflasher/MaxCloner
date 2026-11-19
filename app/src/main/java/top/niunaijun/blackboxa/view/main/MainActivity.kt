@@ -9,10 +9,12 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.input.input
 import top.niunaijun.blackbox.BlackBoxCore
 import top.niunaijun.blackboxa.R
 import top.niunaijun.blackboxa.databinding.ActivityMainBinding
 import top.niunaijun.blackboxa.util.Resolution
+import top.niunaijun.blackboxa.util.MicroGInstaller
 import top.niunaijun.blackboxa.util.inflate
 import top.niunaijun.blackboxa.view.apps.AppsFragment
 import top.niunaijun.blackboxa.view.base.LoadingActivity
@@ -55,8 +57,9 @@ class MainActivity : LoadingActivity() {
                 Log.e(TAG, "Error in onBeforeMainActivityOnCreate: ${e.message}")
             }
             setContentView(viewBinding.root)
+            // MicroG aktif otomatis di semua ruang, diam-diam di background.
+            MicroGInstaller.ensureActive()
             initToolbar(viewBinding.toolbarLayout.toolbar, R.string.app_name)
-            viewBinding.toolbarLayout.toolbar.subtitle = getString(R.string.all_clones_subtitle)
             initSinglePage()
             initFab()
             checkStoragePermission()
@@ -263,6 +266,29 @@ class MainActivity : LoadingActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         try {
             when (item.itemId) {
+                R.id.main_search -> {
+                    MaterialDialog(this).show {
+                        title(R.string.menu_search)
+                        input(hintRes = R.string.search_clone_hint) { _, text ->
+                            singleFragment?.filter(text.toString())
+                        }
+                        positiveButton(R.string.done)
+                        negativeButton(R.string.cancel)
+                    }
+                }
+                R.id.main_delete_all -> {
+                    MaterialDialog(this).show {
+                        title(R.string.delete_all_clones)
+                        message(R.string.delete_all_clones_hint)
+                        positiveButton(R.string.done) {
+                            singleFragment?.deleteAllClones()
+                        }
+                        negativeButton(R.string.cancel)
+                    }
+                }
+                R.id.main_profile -> {
+                    SettingActivity.start(this)
+                }
                 R.id.main_git -> {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ALEX5402/NewBlackbox"))
                     startActivity(intent)
