@@ -43,6 +43,11 @@
         <item name="materialAlertDialogTheme">@style/Zenith.AlertDialog</item>
     </style>
 
+    <style name="CloneApp.Toolbar" parent="ThemeOverlay.Material3.Light.ActionBar">
+        <item name="actionMenuTextColor">@color/clone_text_dark</item>
+        <item name="colorControlNormal">@color/clone_text_gray</item>
+    </style>
+
     <style name="ToolBarColorStyle" parent="ThemeOverlay.Material3.Dark.ActionBar">
         <item name="actionMenuTextColor">@color/zenith_cyan</item>
         <item name="colorControlNormal">@color/zenith_cyan</item>
