@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+    <include
+            android:id="@+id/toolbar_layout"
+            layout="@layout/view_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/microg_card" />
+
+    <!-- MicroG: pengganti Google Play Services untuk clone yang butuh Google -->
+    <LinearLayout
+            android:id="@+id/microg_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/zenith_app_tile"
+            android:orientation="vertical"
+            android:padding="14dp"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_layout">
+
+        <ImageView
+                android:layout_width="180dp"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/microg_title"
+                android:src="@drawable/rclone_logo" />
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/microg_hint"
+                android:textColor="@color/zenith_on_surface_variant"
+                android:textSize="13sp" />
+
+        <TextView
+                android:id="@+id/microg_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/microg_install"
+                android:textColor="@color/zenith_cyan"
+                android:textSize="13sp" />
+
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_install_microg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/microg_install" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
