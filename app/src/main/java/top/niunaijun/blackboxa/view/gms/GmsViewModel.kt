@@ -13,6 +13,8 @@ class GmsViewModel(private val mRepo: GmsRepository) : BaseViewModel() {
 
     val mUpdateInstalledLiveData = MutableLiveData<GmsInstallBean>()
 
+    val mMicroGUpdateLiveData = MutableLiveData<GmsInstallBean>()
+
     fun getInstalledUser() {
         launchOnUI {
             mRepo.getGmsInstalledList(mInstalledLiveData)
@@ -29,5 +31,13 @@ class GmsViewModel(private val mRepo: GmsRepository) : BaseViewModel() {
         launchOnUI {
             mRepo.uninstallGms(userID,mUpdateInstalledLiveData)
         }
+    }
+
+    fun installMicroG(userID: Int) {
+        mRepo.installMicroG(userID, mMicroGUpdateLiveData)
+    }
+
+    fun uninstallMicroG(userID: Int) {
+        mRepo.uninstallMicroG(userID, mMicroGUpdateLiveData)
     }
 }
