@@ -447,7 +447,7 @@ class AppsRepository {
             if (file.exists()) {
                 val info = BlackBoxCore.getPackageManager().getPackageArchiveInfo(source, 0)
                 if (info != null) {
-                    try { BlackBoxCore.getPackageManager().getApplicationLabel(info.applicationInfo).toString() } catch (e: Exception) { packageName }
+                    try { info.applicationInfo?.let { BlackBoxCore.getPackageManager().getApplicationLabel(it).toString() } ?: packageName } catch (e: Exception) { packageName }
                 } else packageName
             } else packageName
         } catch (e: Exception) { packageName }
