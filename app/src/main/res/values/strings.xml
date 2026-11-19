@@ -12,7 +12,9 @@
     <string name="microg_hint">MicroG adalah pengganti Google Play Services yang gratis dan open-source. Pasang MicroG supaya aplikasi clone yang butuh Google (login Google, Maps, notifikasi) bisa jalan, walau HP kamu tidak punya Google asli.</string>
     <string name="microg_install">Pasang MicroG</string>
     <string name="microg_installed">MicroG sudah terpasang</string>
-    <string name="microg_confirm">Download MicroG (sekitar 108 MB) lalu pasang ke semua ruang clone. Butuh internet, cukup sekali saja.</string>
+    <string name="microg_confirm">MicroG akan diaktifkan untuk ruang ini (diunduh sekali, sekitar 108 MB, lalu tersimpan). Semua clone di ruang ini langsung bisa pakai Google — login Google, Maps, notifikasi.</string>
+    <string name="microg_room_hint">Aktifkan MicroG per ruang lewat switch di bawah — semua clone di ruang itu langsung bisa pakai Google, tanpa install APK manual.</string>
+    <string name="microg_uninstall_confirm">Nonaktifkan MicroG untuk ruang ini? Clone di ruang ini tidak bisa lagi pakai Google.</string>
     <string name="microg_success">MicroG berhasil dipasang. Coba buka lagi aplikasi clone kamu.</string>
     <string name="microg_fail">MicroG gagal dipasang. Coba lagi saat internet stabil.</string>
     <string name="filter">Filter</string>
