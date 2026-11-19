@@ -14,6 +14,7 @@ import top.niunaijun.blackboxa.bean.AppInfo
 import top.niunaijun.blackboxa.bean.InstalledAppBean
 import top.niunaijun.blackboxa.util.MemoryManager
 import top.niunaijun.blackboxa.util.CloneNameStore
+import top.niunaijun.blackboxa.util.MicroGInstaller
 import top.niunaijun.blackboxa.util.getString
 
 
@@ -286,6 +287,11 @@ class AppsRepository {
                         return@forEachIndexed
                     }
 
+                    // Sembunyikan paket infra Google (MicroG, GSF, Play Store) dari daftar clone.
+                    if (MicroGInstaller.HIDDEN_SYSTEM_PACKAGES.contains(applicationInfo.packageName)) {
+                        return@forEachIndexed
+                    }
+
                     val label = safeLoadAppLabel(applicationInfo)
                     val info =
                             AppInfo(
@@ -379,6 +385,7 @@ class AppsRepository {
                 val list = try { blackBoxCore.getInstalledApplications(0, user.id) } catch (e: Exception) { null } ?: continue
                 for (app in list) {
                     if (app == null || app.packageName.isNullOrBlank()) continue
+                    if (MicroGInstaller.HIDDEN_SYSTEM_PACKAGES.contains(app.packageName)) continue
                     val label = safeLoadAppLabel(app)
                     val displayName = CloneNameStore.getName(user.id, app.packageName, label)
                     all.add(AppInfo(displayName, safeLoadAppIcon(app), app.packageName, app.sourceDir ?: "", false, user.id))
@@ -411,7 +418,11 @@ class AppsRepository {
             }
             if (targetUserId == -1) {
                 val newId = (users.maxOfOrNull { it.id } ?: -1) + 1
-                try { blackBoxCore.createUser(newId) } catch (e: Exception) { Log.e(TAG, "createUser failed: ${e.message}") }
+                try {
+                    blackBoxCore.createUser(newId)
+                    // Ruang baru langsung dapat MicroG aktif di background, tanpa install manual.
+                    MicroGInstaller.installToUser(newId) { }
+                } catch (e: Exception) { Log.e(TAG, "createUser failed: ${e.message}") }
                 targetUserId = newId
             }
             val originalName = resolveAppLabel(source, packageName)
