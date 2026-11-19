@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">R·Clone</string>
+    <string name="app_name">R•Cloner</string>
     <string name="choose">Choose</string>
     <string name="choose_app">Pilih aplikasi untuk di-clone</string>
     <string name="installed_app">Installed App</string>
