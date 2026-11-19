@@ -19,7 +19,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/microg_card" />
 
-    <!-- MicroG: pengganti Google Play Services untuk clone yang butuh Google -->
+    <!-- MicroG per ruang: aktifkan lewat switch di tiap baris ruang di bawah -->
     <LinearLayout
             android:id="@+id/microg_card"
             android:layout_width="match_parent"
@@ -43,25 +43,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="@string/microg_hint"
+                android:text="@string/microg_room_hint"
                 android:textColor="@color/zenith_on_surface_variant"
                 android:textSize="13sp" />
-
-        <TextView
-                android:id="@+id/microg_status"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/microg_install"
-                android:textColor="@color/zenith_cyan"
-                android:textSize="13sp" />
-
-        <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_install_microg"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="@string/microg_install" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
