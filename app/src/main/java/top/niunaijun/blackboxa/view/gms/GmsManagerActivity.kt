@@ -12,8 +12,6 @@ import top.niunaijun.blackboxa.R
 import top.niunaijun.blackboxa.bean.GmsBean
 import top.niunaijun.blackboxa.databinding.ActivityGmsBinding
 import top.niunaijun.blackboxa.util.InjectionUtil
-import top.niunaijun.blackboxa.util.MicroGInstaller
-import top.niunaijun.blackboxa.util.getString
 import top.niunaijun.blackboxa.util.inflate
 import top.niunaijun.blackboxa.util.toast
 import top.niunaijun.blackboxa.view.base.LoadingActivity
@@ -25,6 +23,8 @@ class GmsManagerActivity : LoadingActivity() {
 
     private lateinit var mAdapter: RVAdapter<GmsBean>
 
+    private val gmsAdapter = GmsAdapter()
+
     private val viewBinding: ActivityGmsBinding by inflate()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,53 +32,37 @@ class GmsManagerActivity : LoadingActivity() {
         setContentView(viewBinding.root)
         initToolbar(viewBinding.toolbarLayout.toolbar, R.string.gms_manager, true)
         initViewModel()
-        initMicroGCard()
 
         initRecyclerView()
     }
 
-    private fun initMicroGCard() {
-        refreshMicroGStatus()
-        viewBinding.btnInstallMicrog.setOnClickListener {
-            if (MicroGInstaller.isInstalledAnywhere()) {
-                toast(getString(R.string.microg_installed))
-                return@setOnClickListener
-            }
+    /** MicroG per ruang: switch di tiap baris ruang, tanpa install APK manual. */
+    private fun onMicroGToggle(item: GmsBean, enable: Boolean) {
+        if (enable) {
             MaterialDialog(this).show {
                 title(R.string.microg_title)
                 message(R.string.microg_confirm)
                 positiveButton(R.string.done) {
                     showLoading()
-                    MicroGInstaller.install(this@GmsManagerActivity) { ok, msg ->
-                        hideLoading()
-                        when {
-                            msg == "microg_success" -> toast(getString(R.string.microg_success))
-                            msg.startsWith("microg_partial:") -> toast(
-                                "MicroG terpasang di ${msg.substringAfter(":")} ruang clone."
-                            )
-                            else -> MaterialDialog(this@GmsManagerActivity).show {
-                                title(R.string.microg_title)
-                                message(R.string.microg_fail)
-                                positiveButton(R.string.done)
-                            }
-                        }
-                        refreshMicroGStatus()
-                        viewModel.getInstalledUser()
-                    }
+                    viewModel.installMicroG(item.userID)
                 }
-                negativeButton(R.string.cancel)
+                negativeButton(R.string.cancel) {
+                    viewModel.getInstalledUser()
+                }
+            }
+        } else {
+            MaterialDialog(this).show {
+                title(R.string.microg_title)
+                message(R.string.microg_uninstall_confirm)
+                positiveButton(R.string.done) {
+                    showLoading()
+                    viewModel.uninstallMicroG(item.userID)
+                }
+                negativeButton(R.string.cancel) {
+                    viewModel.getInstalledUser()
+                }
             }
         }
-    }
-
-    private fun refreshMicroGStatus() {
-        val installed = MicroGInstaller.isInstalledAnywhere()
-        viewBinding.microgStatus.text = getString(
-            if (installed) R.string.microg_installed else R.string.microg_install
-        )
-        viewBinding.btnInstallMicrog.text = getString(
-            if (installed) R.string.microg_installed else R.string.microg_install
-        )
     }
 
     private fun initViewModel() {
@@ -120,11 +104,42 @@ class GmsManagerActivity : LoadingActivity() {
             }
         }
 
+        viewModel.mMicroGUpdateLiveData.observe(this) { result ->
+            if (result == null) {
+                return@observe
+            }
+
+            val items = mAdapter.getItems()
+            for (index in items.indices) {
+                val bean = items[index]
+                if (bean.userID == result.userID) {
+                    if (result.success) {
+                        bean.isInstalledMicroG = !bean.isInstalledMicroG
+                    }
+                    mAdapter.replaceAt(index, bean)
+                    break
+                }
+            }
+
+            hideLoading()
+
+            if (result.success) {
+                toast(result.msg)
+            } else {
+                MaterialDialog(this).show {
+                    title(R.string.microg_title)
+                    message(text = result.msg)
+                    positiveButton(R.string.done)
+                }
+            }
+        }
+
         viewModel.getInstalledUser()
     }
 
     private fun initRecyclerView() {
-        mAdapter = RVAdapter<GmsBean>(this, GmsAdapter()).bind(viewBinding.recyclerView)
+        gmsAdapter.onMicroGToggle = { item, enable -> onMicroGToggle(item, enable) }
+        mAdapter = RVAdapter<GmsBean>(this, gmsAdapter).bind(viewBinding.recyclerView)
             .setItemClickListener { view, item, _ ->
                 val checkbox = view.findViewById<Switch>(R.id.checkbox)
                 if (item.isInstalledGms) {
