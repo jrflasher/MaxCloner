@@ -1,9 +1,11 @@
 package top.niunaijun.blackboxa.util
 
 import android.content.Context
+import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import top.niunaijun.blackbox.BlackBoxCore
+import top.niunaijun.blackbox.fake.frameworks.BActivityManager
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
@@ -30,7 +32,63 @@ object MicroGInstaller {
 
     const val GMS_PKG = "com.google.android.gms"
 
+    /** Paket infra Google yang tidak boleh muncul di daftar clone (halaman utama). */
+    val HIDDEN_SYSTEM_PACKAGES = setOf(
+        "com.google.android.gms",
+        "com.google.android.gsf",
+        "com.google.android.gsf.login",
+        "com.android.vending"
+    )
+
     private val mainHandler = Handler(Looper.getMainLooper())
+
+    /**
+     * Pastikan MicroG aktif di semua ruang, tanpa campur tangan pengguna.
+     * Dijalankan diam-diam di background thread saat aplikasi dibuka:
+     * ruang yang belum punya MicroG akan dipasangi (file diunduh sekali
+     * saja lalu disimpan di cache), lalu service broker MicroG
+     * dinyalakan di background supaya clone yang butuh Google langsung
+     * jalan. Tidak ada dialog, tidak ada toast.
+     */
+    fun ensureActive() {
+        Thread {
+            try {
+                val users = try { BlackBoxCore.get().users } catch (e: Exception) { return@Thread }
+                for (user in users) {
+                    try {
+                        if (!isInstalled(user.id)) {
+                            installToUserSync(user.id)
+                        }
+                    } catch (e: Exception) {
+                        // Lanjutkan ke ruang berikutnya; aktivasi bisa dicoba lagi lain kali.
+                    }
+                }
+                for (user in users) {
+                    if (isInstalled(user.id)) {
+                        startBackground(user.id)
+                    }
+                }
+            } catch (e: Exception) {
+                // Diam-diam saja: MicroG tidak wajib untuk clone yang tidak butuh Google.
+            }
+        }.start()
+    }
+
+    /**
+     * Nyalakan service broker MicroG di background untuk satu ruang, supaya
+     * MicroG sudah berjalan sebelum ada clone yang memanggil API Google.
+     * Best-effort: kegagalan diabaikan, karena service juga akan bangun
+     * sendiri saat clone pertama kali memakai Google API.
+     */
+    fun startBackground(userId: Int) {
+        try {
+            val intent = Intent("com.google.android.gms.common.service.START")
+                .setPackage(GMS_PKG)
+            BActivityManager.get().startService(intent, null, false, userId)
+        } catch (e: Exception) {
+            // Abaikan: service akan jalan saat dibutuhkan oleh clone.
+        }
+    }
 
     fun isInstalled(userId: Int): Boolean {
         return try {
