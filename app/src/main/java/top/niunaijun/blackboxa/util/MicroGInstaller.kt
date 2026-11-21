@@ -187,7 +187,32 @@ object MicroGInstaller {
         }.start()
     }
 
+    /**
+     * Salin MicroG dari assets APK (kalau build membundelnya) ke file cache.
+     * Return true kalau berhasil dan filenya lengkap; false kalau APK ini
+     * tidak membundel MicroG, supaya download dari internet tetap jalan.
+     */
+    private fun copyBundledApk(target: File): Boolean {
+        return try {
+            BlackBoxCore.getContext().assets.open("microg-gmscore.apk").use { input ->
+                FileOutputStream(target).use { output ->
+                    val buffer = ByteArray(64 * 1024)
+                    var read: Int
+                    while (input.read(buffer).also { read = it } != -1) {
+                        output.write(buffer, 0, read)
+                    }
+                }
+            }
+            target.length() >= 10_000_000
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     private fun downloadApk(target: File) {
+        // Kalau MicroG sudah dibundel di dalam APK (assets/microg-gmscore.apk),
+        // salin dari sana — tidak perlu download 108 MB di HP.
+        if (copyBundledApk(target)) return
         var connection: HttpURLConnection? = null
         try {
             connection = URL(MICROG_APK_URL).openConnection() as HttpURLConnection
