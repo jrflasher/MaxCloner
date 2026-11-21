@@ -287,8 +287,12 @@ class AppsRepository {
                         return@forEachIndexed
                     }
 
-                    // Sembunyikan paket infra Google (MicroG, GSF, Play Store) dari daftar clone.
-                    if (MicroGInstaller.HIDDEN_SYSTEM_PACKAGES.contains(applicationInfo.packageName)) {
+                    // Sembunyikan paket sistem/Google dari daftar clone, dan
+                    // hanya tampilkan aplikasi yang bisa dibuka (punya launcher).
+                    if (MicroGInstaller.isHiddenSystemApp(applicationInfo.packageName)) {
+                        return@forEachIndexed
+                    }
+                    if (!MicroGInstaller.hasLauncher(applicationInfo.packageName, userId)) {
                         return@forEachIndexed
                     }
 
@@ -385,7 +389,11 @@ class AppsRepository {
                 val list = try { blackBoxCore.getInstalledApplications(0, user.id) } catch (e: Exception) { null } ?: continue
                 for (app in list) {
                     if (app == null || app.packageName.isNullOrBlank()) continue
-                    if (MicroGInstaller.HIDDEN_SYSTEM_PACKAGES.contains(app.packageName)) continue
+                    // Sembunyikan aplikasi sistem/Google (ConfigUpdater,
+                    // Penyiapan Android, Partner Setup, dsb.) dan aplikasi
+                    // tanpa launcher — halaman utama hanya untuk clone asli.
+                    if (MicroGInstaller.isHiddenSystemApp(app.packageName)) continue
+                    if (!MicroGInstaller.hasLauncher(app.packageName, user.id)) continue
                     val label = safeLoadAppLabel(app)
                     val displayName = CloneNameStore.getName(user.id, app.packageName, label)
                     all.add(AppInfo(displayName, safeLoadAppIcon(app), app.packageName, app.sourceDir ?: "", false, user.id))
