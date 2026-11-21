@@ -46,6 +46,16 @@ jobs:
       - name: Remove VM-only proxy settings
         run: sed -i '/systemProp\..*\.proxy/d' gradle.properties
 
+      # MicroG dibundel ke dalam APK (assets/) supaya di HP tidak perlu
+      # download 108 MB saat pertama dibuka — file-nya terlalu besar
+      # (>100 MB) untuk di-push ke repo, jadi diunduh di sini saat build.
+      - name: Bundle MicroG into APK assets
+        run: |
+          mkdir -p app/src/main/assets
+          curl -L -o app/src/main/assets/microg-gmscore.apk \
+            https://github.com/microg/GmsCore/releases/download/v0.3.18.252432/com.google.android.gms-252432036.apk
+          ls -lh app/src/main/assets/
+
       - name: Build debug APKs
         run: |
           chmod +x ./gradlew
