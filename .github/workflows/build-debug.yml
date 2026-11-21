@@ -56,6 +56,16 @@ jobs:
             https://github.com/microg/GmsCore/releases/download/v0.3.18.252432/com.google.android.gms-252432036.apk
           ls -lh app/src/main/assets/
 
+      # Debug key tetap: tiap runner GitHub membuat debug keystore baru,
+      # jadi tiap build punya tanda tangan berbeda dan tidak bisa
+      # di-install menimpa build sebelumnya ("App not installed").
+      # Pakai satu keystore debug yang sama di semua build.
+      - name: Install fixed debug keystore
+        run: |
+          mkdir -p ~/.android
+          cp .github/debug.keystore ~/.android/debug.keystore
+          ls -lh ~/.android/debug.keystore
+
       - name: Build debug APKs
         run: |
           chmod +x ./gradlew
