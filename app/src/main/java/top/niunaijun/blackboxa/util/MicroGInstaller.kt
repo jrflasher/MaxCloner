@@ -32,13 +32,46 @@ object MicroGInstaller {
 
     const val GMS_PKG = "com.google.android.gms"
 
-    /** Paket infra Google yang tidak boleh muncul di daftar clone (halaman utama). */
+    /**
+     * Paket sistem/Google yang tidak boleh muncul di halaman utama.
+     * Ini aplikasi infra yang ikut terbawa ke ruang virtual (misalnya lewat
+     * GMS bawaan dari HP: ConfigUpdater, Penyiapan Android, Google Partner
+     * Setup, aplikasi sistem Facebook, Play Store) — bukan clone pengguna.
+     * Ikon robot/gear di grid kemarin adalah ikon asli aplikasi-aplikasi ini.
+     */
     val HIDDEN_SYSTEM_PACKAGES = setOf(
         "com.google.android.gms",
         "com.google.android.gsf",
         "com.google.android.gsf.login",
-        "com.android.vending"
+        "com.android.vending",
+        "com.google.android.configupdater",
+        "com.google.android.setupwizard",
+        "com.google.android.partnersetup",
+        "com.google.android.syncadapters.contacts",
+        "com.google.android.syncadapters.calendar",
+        "com.google.android.backuptransport",
+        "com.google.android.onetimeinitializer",
+        "com.facebook.appmanager",
+        "com.facebook.system",
+        "com.facebook.services"
     )
+
+    fun isHiddenSystemApp(packageName: String): Boolean {
+        return HIDDEN_SYSTEM_PACKAGES.contains(packageName)
+    }
+
+    /**
+     * Punya ikon launcher atau tidak. Grid clone hanya menampilkan aplikasi
+     * yang bisa dibuka (punya launcher activity). Kalau pengecekan gagal,
+     * tampilkan saja (fail-open) supaya clone asli tidak pernah hilang.
+     */
+    fun hasLauncher(packageName: String, userId: Int): Boolean {
+        return try {
+            BlackBoxCore.getBPackageManager().getLaunchIntentForPackage(packageName, userId) != null
+        } catch (e: Exception) {
+            true
+        }
+    }
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
